@@ -1,0 +1,72 @@
+Case 1:
+================================
+Webbench - Simple Web Benchmark 1.5
+Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.
+Benchmarking: GET http://www.baidu.com/
+100 clients, running 60 sec.
+Speed=484 pages/min, 968045 bytes/sec.
+Requests: 484 susceed, 0 failed.
+Case 2:
+================================
+Webbench - Simple Web Benchmark 1.5
+Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.
+Benchmarking: GET http://www.baidu.com/
+200 clients, running 60 sec.
+Speed=487 pages/min, 964576 bytes/sec.
+Requests: 487 susceed, 0 failed.
+Case 3:
+================================
+Webbench - Simple Web Benchmark 1.5
+Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.
+Benchmarking: GET http://www.baidu.com/
+300 clients, running 60 sec.
+Speed=480 pages/min, 960755 bytes/sec.
+Requests: 480 susceed, 0 failed.
+Case 4:
+================================
+Webbench - Simple Web Benchmark 1.5
+Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.
+Benchmarking: GET http://www.baidu.com/
+400 clients, running 60 sec.
+Speed=479 pages/min, 957814 bytes/sec.
+Requests: 479 susceed, 0 failed.
+Case 5:
+================================
+Webbench - Simple Web Benchmark 1.5
+Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.
+Benchmarking: GET http://www.baidu.com/
+500 clients, running 60 sec.
+Speed=475 pages/min, 956117 bytes/sec.
+Requests: 475 susceed, 0 failed.
+Case 6:
+================================
+Webbench - Simple Web Benchmark 1.5
+Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.
+Benchmarking: GET http://www.baidu.com/
+600 clients, running 60 sec.
+Speed=600 pages/min, 0 bytes/sec.
+Requests: 0 susceed, 600 failed.
+Case 7:
+================================
+Webbench - Simple Web Benchmark 1.5
+Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.
+Benchmarking: GET http://www.baidu.com/
+700 clients, running 60 sec.
+Speed=700 pages/min, 0 bytes/sec.
+Requests: 73 susceed, 627 failed.
+Case 8:
+================================
+Webbench - Simple Web Benchmark 1.5
+Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.
+Benchmarking: GET http://www.baidu.com/
+800 clients, running 60 sec.
+Speed=470 pages/min, 952962 bytes/sec.
+Requests: 470 susceed, 0 failed.
+Case 9:
+================================
+Webbench - Simple Web Benchmark 1.5
+Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.
+Benchmarking: GET http://www.baidu.com/
+900 clients, running 60 sec.
+Speed=900 pages/min, 0 bytes/sec.
+Requests: 0 susceed, 900 failed.
