@@ -111,6 +111,8 @@ while(usb_interface_flag == 0)
 
 [参考资料](http://www.informit.com/articles/article.aspx?p=175771&seqNum=3) 
 
+用于长参数处理
+
 ```c
 #include <getopt.h>                                                GLIBC
 //the first three arguments are the same as getopt()-> Single-Letter option Options   
@@ -214,15 +216,61 @@ struct option longopts[] = {
 
 ## 字符串操作
 
+### strcspn()定位
+
+> Scans *str1* for the **first occurrence** of **any** of the characters that are **part** of *str2*, returning the number of characters of *str1* read before this first occurrence.
+
+```c
+/* strcspn example */
+#include <stdio.h>
+#include <string.h>
+
+int main ()
+{
+  char str[] = "fcba73";
+  char keys[] = "1234567890";
+  int i;
+  i = strcspn (str,keys);
+  printf ("The first number in str is at position %d.\n",i+1);
+  return 0;
+}
+
+//The first number in str is at position 5
+```
+
+
+
+### strrchr()定位
+
+Returns a pointer to the **last** occurrence of *character* in the C string *str*.
+
 ### strstr()定位
 
 ```c
-char * strstr ( char * str1, const char * str2 );
+char * strstr ( char * str1, const char * str2 
+
+#include <string.h>
+#include <stdio.h>
+ 
+int main(void)
+{
+   char *string1 = "needle in a haystack";
+   char *string2 = "haystack";
+   char *result;
+ 
+   result = strstr(string1,string2);
+   /* Result = a pointer to "haystack" */
+   printf("%s\n", result);
+}
+ 
+/*****************  Output should be similar to: *****************
+haystack
+*/
 ```
 
-Returns a pointer to the first occurrence of `str2` in `str1`, or a `null` pointer if *str2* is not part of *str1*.
+Returns a pointer to the **first** occurrence of `str2` in `str1`, or a `null` pointer if *str2* is not part of *str1*.
 
-### strncasecmp()
+### strncasecmp()前几位比较
 
 ```c
 int strncasecmp(const char *string1, const char *string2, size_t count);
@@ -244,7 +292,7 @@ The strncasecmp() function compares up to *count* characters of *string1* and *s
 
 The `index()` function shall be equivalent to `strchr()`.But for maximum portability, it is recommended to **replace** the function call to *index*().
 
-`strchr()`:Returns a pointer to the first occurrence of *character* in the C string *str*.If the *character* is **not found**, the function returns a `null pointer`.
+`strchr()`:Returns a pointer to the **first** occurrence of *character* in the C string *str*.If the *character* is **not found**, the function returns a `null pointer`.
 
 ```c
 /* strchr example */
@@ -290,7 +338,7 @@ The **bzero**() function sets the first *n* bytes of the area starting at *s* to
 
 > This function is deprecated (marked as LEGACY in POSIX.1-2001): use `memset(3)` in new programs. POSIX.1-2008 **removes** the specification of **bzero**().
 
-## 网络
+## socket
 
 [tutorial](http://beej.us/net2/html/theory.html) 
 
@@ -525,3 +573,38 @@ int main(void)
     return 0;
 }
 ```
+
+## HTTP
+
+### url
+
+```shell
+#protocol                 resource path
+http://www.domain.com:1234/path/to/resource?a=b&x=y
+#                     port                 query
+```
+
+### colon
+
+`URL`中的冒号`':'` 是separator, 不是port专属
+
+### https verbs
+
++ `GET`: `GET` is the most common HTTP method; it says "give me this resource". 
+
+```shell
+GET /path/to/file/index.html HTTP/1.0
+```
+
++ `OPTIONS`:used to retrieve the **server capabilities**. On the client-side, it can be used to modify the request based on what the server can support.
++ `HEAD`:A `HEAD reques`t is just like a `GET request`, except it asks the server to return the response **headers only**, and not the actual resource (i.e. no message body). This is useful to check characteristics of a resource without actually downloading it, thus saving bandwidth. Use `HEAD` when you don't actually need a file's contents.
++ `TRACE` :used to `retrieve the hops` that a request takes to round trip from the server. Each intermediate proxy or gateway would inject its IP or DNS name into the `Via` header field. This can be used for `diagnostic purposes`.
+
+### proxy
+
+> When a client uses a proxy, it typically sends all requests to that proxy, instead of to the servers in the URLs. Requests to a proxy differ from normal requests in one way: in the first line, they use the **complete URL** of the resource being requested, instead of just the path. For example,
+
+```shell
+GET http://www.somehost.com/path/file.html HTTP/1.0
+```
+
