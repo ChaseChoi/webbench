@@ -1,4 +1,4 @@
-#  Webbench
+# Webbench
 
 ## 安装
 
@@ -512,6 +512,24 @@ int main(int argc, char *argv[])
 }
 ```
 
+### shutdown/close
+
+```c
+int shutdown(int sockfd, int how);
+```
+
+*sockfd* is the socket file descriptor you want to shutdown, and `how` is one of the following:
+
+- **0** -- Further receives are disallowed
+- **1** -- Further sends are disallowedh
+- **2** -- Further sends and receives are disallowed (like `close()`)
+
+`shutdown()` returns **0** on success, and **-1** on error (with *errno* set accordingly.)
+
+> It's important to note that `shutdown()` **doesn't** actually close the file descriptor--it just changes its usability. To `free` a socket descriptor, you need to use `close()`.
+
+`close()` returns **zero** on success. On error, **-1** is returned, and *errno* is set appropriately.
+
 ## signal
 
 ### 1.sigaction()
@@ -576,6 +594,14 @@ int main(void)
 
 ## HTTP
 
+### version0.9-1.1
+
+In `HTTP 0.9`, the server always closes the connection after sending the response. The client must close its end of the connection after receiving the response.
+
+In `HTTP 1.0`, the server always closes the connection after sending the response **UNLESS** the client sent a `Connection: keep-alive` request header and the server sent a `Connection: keep-alive` response header. If no such response header exists, the client must close its end of the connection after receiving the response.
+
+In `HTTP 1.1`, the server does not close the connection after sending the response **UNLESS** the client sent a `Connection: close` request header, or the server sent a `Connection: close`response header. If such a response header exists, the client must close its end of the connection after receiving the response.
+
 ### url
 
 ```shell
@@ -608,3 +634,20 @@ GET /path/to/file/index.html HTTP/1.0
 GET http://www.somehost.com/path/file.html HTTP/1.0
 ```
 
+## fork()
+
+| return   value | description                              |
+| -------------- | ---------------------------------------- |
+| `-1`:          | If it returns `-1`, something went **wrong**, and no child was created. Use **perror()** to see what happened. You've probably filled the process table—if you turn around you'll see your sysadmin coming at you with a fireaxe. |
+| `0`            | If it returns `0`, you are the `child process`. You can get the parent's PID by calling **getppid()**. Of course, you can get your own PID by calling **getpid()**. |
+| else:          | Any other value returned by **fork()** means that you're the parent and the value returned is the PID of your child. This is the only way to get the PID of your child, since there is no **getcpid()** call (obviously due to the one-to-many relationship between parents and children.) |
+
+## alarm()
+
+> The *alarm*() function shall cause the system to generate a `SIGALRM` signal for the process after the number of realtime seconds specified by *seconds* have elapsed.
+
+## 疑问
+
+line 438 shutdown()
+
+line430 failed--

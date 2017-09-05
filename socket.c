@@ -27,6 +27,8 @@
 #include <stdarg.h>
 
 //功能:获取socket descriptor
+//返回值: -1 on error (包括获取IP地址失败,connect()出错,socket()获取“描述符”失败
+//      socket descriptor on success, i.e. socket描述符
 int Socket(const char *host, int clientPort)
 {
     int sock; //socket descriptor获取“描述符”是关键
@@ -45,7 +47,7 @@ int Socket(const char *host, int clientPort)
     else
     {
         hp = gethostbyname(host);  //DNS获取IP address
-        if (hp == NULL) 
+        if (hp == NULL) //获取失败
             return -1; 
         memcpy(&ad.sin_addr, hp->h_addr, hp->h_length); //Network Byte Order, 无需类型转换
     }
@@ -53,9 +55,9 @@ int Socket(const char *host, int clientPort)
     
     sock = socket(AF_INET, SOCK_STREAM, 0); //获取 socket descriptor; AF_INET 使用IPv4
     if (sock < 0)   //socket() return -1 on error
-        return sock;
+        return sock; //即返回-1
     if (connect(sock, (struct sockaddr *)&ad, sizeof(ad)) < 0)  //sockaddr_in 记得转换类型, error-> -1 success->0
         return -1;  //连接出错 
-    return sock;
+    return sock; //返回“描述符”
 }
 

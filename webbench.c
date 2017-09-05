@@ -25,28 +25,28 @@
 #include <signal.h>
 
 /* values */
-volatile int timerexpired=0;
-int speed=0;
-int failed=0;
-int bytes=0;
+volatile int timerexpired=0; //使用volatile 避免编译器做出优化,使得超时无法被发现
+int speed=0; //成功次数
+int failed=0; //失败次数
+int bytes=0; //读取的bytes数
 /* globals */
 int http10=1; /* 0 - http/0.9, 1 - http/1.0, 2 - http/1.1 */
 /* Allow: GET, HEAD, OPTIONS, TRACE */
-#define METHOD_GET 0
+#define METHOD_GET 0   
 #define METHOD_HEAD 1
 #define METHOD_OPTIONS 2
 #define METHOD_TRACE 3
 #define PROGRAM_VERSION "1.5"
 int method=METHOD_GET;
-int clients=1;
-int force=0;
-int force_reload=0;
-int proxyport=80;
+int clients=1;  //并发数默认为1
+int force=0;  //默认等待服务器回应
+int force_reload=0; //默认不发送reload请求
+int proxyport=80;  //http默认端口号为80
 char *proxyhost=NULL;
-int benchtime=30;
+int benchtime=30;   //测试时间默认为30s
 /* internal */
-int mypipe[2];
-char host[MAXHOSTNAMELEN];
+int mypipe[2];  //存储管道的"描述符"
+char host[MAXHOSTNAMELEN]; 
 #define REQUEST_SIZE 2048
 char request[REQUEST_SIZE];
 
@@ -125,31 +125,31 @@ int main(int argc, char *argv[])
             case  0 : break; //long_options 负责处理
             case 'f': force=1;break;
             case 'r': force_reload=1;break;
-            case '9': http10=0;break;
-            case '1': http10=1;break;
-            case '2': http10=2;break;
+            case '9': http10=0;break; //使用http 0.9
+            case '1': http10=1;break; //使用http 1.0
+            case '2': http10=2;break; //使用http 1.1
             case 'V': printf(PROGRAM_VERSION"\n");exit(0);
             case 't': benchtime=atoi(optarg);break;	 //获取的benchtime为string,转换为整型,便于后续处理
             case 'p':
                 /* proxy server parsing server:port */
                 tmp=strrchr(optarg,':'); //定位最后出现':'的位置
-                proxyhost=optarg;
+                proxyhost=optarg;  //通过后面的截断处理,最后剩下host部分
                 if(tmp==NULL) //没找到':'
                 {
                     break;
                 }
-                if(tmp==optarg)
+                if(tmp==optarg) //':'之前没有内容,说明缺失了hostname
                 {
                     fprintf(stderr,"Error in option --proxy %s: Missing hostname.\n",optarg);
                     return 2;
                 }
-                if(tmp==optarg+strlen(optarg)-1)
+                if(tmp==optarg+strlen(optarg)-1) //':'之后没有内容,说明缺失端口号
                 {
                     fprintf(stderr,"Error in option --proxy %s Port number is missing.\n",optarg);
                     return 2;
                 }
-                *tmp='\0';
-                proxyport=atoi(tmp+1);break;
+                *tmp='\0'; //在':'处截断
+                proxyport=atoi(tmp+1);break; //将端口号转化为整型
             case ':':                         //疑问：为什么会返回':'? ":XXX" 并没有remain silent
             case 'h':
             case '?': usage();return 2;break;
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
         return 2;
     }
     
-    if(clients==0) clients=1;
+    if(clients==0) clients=1; 
     if(benchtime==0) benchtime=60; //疑问: 负数的处理呢？
     /* Copyright */ 
     fprintf(stderr,"Webbench - Simple Web Benchmark "PROGRAM_VERSION"\n"
@@ -184,8 +184,8 @@ int main(int argc, char *argv[])
         case METHOD_TRACE:
             printf("TRACE");break;
     }
-    printf(" %s",argv[optind]);
-    switch(http10)
+    printf(" %s",argv[optind]); //输出链接
+    switch(http10)  //说明使用的协议
     {
         case 0: printf(" (using HTTP/0.9)");break;
         case 2: printf(" (using HTTP/1.1)");break;
@@ -206,26 +206,26 @@ int main(int argc, char *argv[])
 void build_request(const char *url)
 {
     char tmp[10];
-    int i;
+    int i; //i记录了host开始的位置与开头的"距离"
     
-    bzero(host,MAXHOSTNAMELEN);
+    bzero(host,MAXHOSTNAMELEN); //清零操作,非标准库函数,推荐使用memset()
     bzero(request,REQUEST_SIZE);
     
-    if(force_reload && proxyhost!=NULL && http10<1) http10=1;
-    if(method==METHOD_HEAD && http10<1) http10=1;
-    if(method==METHOD_OPTIONS && http10<2) http10=2;
-    if(method==METHOD_TRACE && http10<2) http10=2;
+    if(force_reload && proxyhost!=NULL && http10<1) http10=1;  //http0.9不支持相应功能,调整为http1.0
+    if(method==METHOD_HEAD && http10<1) http10=1;  //http0.9没有HEAD 方法,调整为http1.0
+    if(method==METHOD_OPTIONS && http10<2) http10=2; //http1.0没有OPTIONS 方法,调整为http1.1
+    if(method==METHOD_TRACE && http10<2) http10=2;  //http0.9没有TRACE 方法,调整为http1.1
     
     switch(method)
     {
-        default:
+        default:  //在initial request line添加对应method
         case METHOD_GET: strcpy(request,"GET");break;
         case METHOD_HEAD: strcpy(request,"HEAD");break;
         case METHOD_OPTIONS: strcpy(request,"OPTIONS");break;
         case METHOD_TRACE: strcpy(request,"TRACE");break;
     }
 		  
-    strcat(request," ");
+    strcat(request," "); //拼接上url与http verbs之间的空格
     
     if(NULL==strstr(url,"://"))  //判断URL合法性
     {
@@ -267,8 +267,8 @@ void build_request(const char *url)
             strncpy(host,url+i,strcspn(url+i,"/")); //分离host(不含port),赋值给host 
         }
         // printf("Host=%s\n",host);
-        strcat(request+strlen(request),url+i+strcspn(url+i,"/")); //构建initial request line 疑问？为什么加长度
-    } else    //代理服务器url直接使用
+        strcat(request+strlen(request),url+i+strcspn(url+i,"/")); //构建initial request line,request(指针)+strlen()使得在正确的位置添加host
+    } else    //代理服务器url直接使用完整url
     {
         // printf("ProxyHost=%s\nProxyPort=%d\n",proxyhost,proxyport);
         strcat(request,url);
@@ -308,11 +308,12 @@ static int bench(void)
     
     /* check avaibility of target server */
     i=Socket(proxyhost==NULL?host:proxyhost,proxyport);
+    //出错返回-1
     if(i<0) {
         fprintf(stderr,"\nConnect to server failed. Aborting benchmark.\n");
         return 1;
     }
-    close(i);
+    close(i); //关闭“描述符”
     /* create pipe */
     if(pipe(mypipe))
     {
@@ -320,8 +321,8 @@ static int bench(void)
         return 3;
     }
     
-    /* not needed, since we have alarm() in childrens */
-    /* wait 4 next system clock tick */
+    /* not needed, since we have () in childrens */
+    /* wait 4 next system clock tick */alarm
     /*
      cas=time(NULL);
      while(time(NULL)==cas)
@@ -334,8 +335,8 @@ static int bench(void)
         pid=fork();
         if(pid <= (pid_t) 0)
         {
-            /* child process or error*/
-	           sleep(1); /* make childs faster */
+            /* child process or error*/  //系统调度使得子进程不进行进一步的操作,加快fork()速度
+	        sleep(1); /* make childs faster */
             break;
         }
     }
@@ -347,42 +348,42 @@ static int bench(void)
         return 3;
     }
     
-    if(pid== (pid_t) 0)
+    if(pid== (pid_t) 0) //pid为0 说明是子进程
     {
         /* I am a child */
-        if(proxyhost==NULL)
+        if(proxyhost==NULL) //不使用代理服务器
             benchcore(host,proxyport,request);
-        else
+        else  //使用了代理服务器
             benchcore(proxyhost,proxyport,request);
         
         /* write results to pipe */
-        f=fdopen(mypipe[1],"w");
+        f=fdopen(mypipe[1],"w"); //可以当作普通文件来处理
         if(f==NULL)
         {
             perror("open pipe for writing failed.");
             return 3;
         }
         /* fprintf(stderr,"Child - %d %d\n",speed,failed); */
-        fprintf(f,"%d %d %d\n",speed,failed,bytes);
+        fprintf(f,"%d %d %d\n",speed,failed,bytes); //benchcore()获取的数据写入管道,父进程读取
         fclose(f);
         return 0;
-    } else
+    } else   //父进程
     {
-        f=fdopen(mypipe[0],"r");
+        f=fdopen(mypipe[0],"r");  //管道与I/O流结合,直接当做流来操作
         if(f==NULL)
         {
             perror("open pipe for reading failed.");
             return 3;
         }
-        setvbuf(f,NULL,_IONBF,0);
+        setvbuf(f,NULL,_IONBF,0); //_IONBF模式,不使用buffer
         speed=0;
         failed=0;
         bytes=0;
         
         while(1)
         {
-            pid=fscanf(f,"%d %d %d",&i,&j,&k);
-            if(pid<2)
+            pid=fscanf(f,"%d %d %d",&i,&j,&k); //读取speed,failed,bytes信息
+            if(pid<2) //读取元素少于2,说明i,j,k没读取完整
             {
                 fprintf(stderr,"Some of our childrens died.\n");
                 break;
@@ -394,7 +395,7 @@ static int bench(void)
             if(--clients==0) break;
         }
         fclose(f);
-        
+        //计算数据并输出
         printf("\nSpeed=%d pages/min, %d bytes/sec.\nRequests: %d susceed, %d failed.\n",
                (int)((speed+failed)/(benchtime/60.0f)),
                (int)(bytes/(float)benchtime),
@@ -406,22 +407,22 @@ static int bench(void)
 
 void benchcore(const char *host,const int port,const char *req)
 {
-    int rlen;
+    int rlen;  //记录req的长度
     char buf[1500];
     int s,i;
     struct sigaction sa;
     
     /* setup alarm signal handler */
     sa.sa_handler=alarm_handler;
-    sa.sa_flags=0;
-    if(sigaction(SIGALRM,&sa,NULL))
+    sa.sa_flags=0; //
+    if(sigaction(SIGALRM,&sa,NULL)) //成功返回0,否则退出
         exit(3);
-    alarm(benchtime);
+    alarm(benchtime); //让系统在benchtime之后产生SIGALRM信号,俘获该信号,timerexpired＝1(见handler)
     
     rlen=strlen(req);
 nexttry:while(1)
 {
-    if(timerexpired)
+    if(timerexpired) 
     {
         if(failed>0)
         {
@@ -430,32 +431,35 @@ nexttry:while(1)
         }
         return;
     }
-    s=Socket(host,port);                          
-    if(s<0) { failed++;continue;} 
-    if(rlen!=write(s,req,rlen)) {failed++;close(s);continue;}
-    if(http10==0) 
-        if(shutdown(s,1)) { failed++;close(s);continue;}
+    s=Socket(host,port);  //获取sd,并使用connect()建立连接                        
+    if(s<0) { failed++;continue;} //-1失败
+    if(rlen!=write(s,req,rlen)) {failed++;close(s);continue;} //write()返回写入的byte数目,不等于rlen说明出错
+    if(http10==0)  //若使用http0.9,利用shutdown()关闭发送端
+        if(shutdown(s,1))  //shutdown()失败返回-1,成功返回0,并使得无法"发送"
+        {   failed++;close(s);
+            continue;
+        }
     if(force==0) 
     {
         /* read all available data from socket */
         while(1)
         {
             if(timerexpired) break; 
-            i=read(s,buf,1500);
+            i=read(s,buf,1500); //i为成功读取到的bytes数
             /* fprintf(stderr,"%d\n",i); */
-            if(i<0) 
+            if(i<0) //发生错误
             { 
                 failed++;
                 close(s);
                 goto nexttry;
             }
-            else
-                if(i==0) break;
-                else
-                    bytes+=i;
+            else if(i==0) //无可读数据
+                break; 
+            else  
+                bytes+=i;
         }
     }
-    if(close(s)) {failed++;continue;}
+    if(close(s)) {failed++;continue;} //close()释放descriptor
     speed++;
 }
 }
