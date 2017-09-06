@@ -651,3 +651,5 @@ GET http://www.somehost.com/path/file.html HTTP/1.0
 line 438 shutdown()
 
 line430 failed--
+
+long_opt 返回值 ' : '

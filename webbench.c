@@ -32,12 +32,12 @@ int bytes=0; //读取的bytes数
 /* globals */
 int http10=1; /* 0 - http/0.9, 1 - http/1.0, 2 - http/1.1 */
 /* Allow: GET, HEAD, OPTIONS, TRACE */
-#define METHOD_GET 0   
+#define METHOD_GET 0   //设置http 请求的method
 #define METHOD_HEAD 1
 #define METHOD_OPTIONS 2
 #define METHOD_TRACE 3
 #define PROGRAM_VERSION "1.5"
-int method=METHOD_GET;
+int method=METHOD_GET; //默认GET(HTTP 0.9仅支持该方法)
 int clients=1;  //并发数默认为1
 int force=0;  //默认等待服务器回应
 int force_reload=0; //默认不发送reload请求
@@ -46,10 +46,9 @@ char *proxyhost=NULL;
 int benchtime=30;   //测试时间默认为30s
 /* internal */
 int mypipe[2];  //存储管道的"描述符"
-char host[MAXHOSTNAMELEN]; 
+char host[MAXHOSTNAMELEN]; //存储host，并规定最大长度
 #define REQUEST_SIZE 2048
-char request[REQUEST_SIZE];
-
+char request[REQUEST_SIZE]; //记录请求信息
 // 四个参数分别为：
 // 1.指定option名字 2.有无参数
 // 3.*flag 若NULL 返回参数4, 即val;非NULL, val值赋予flag
@@ -75,11 +74,11 @@ static const struct option long_options[]=
 };
 
 /* prototypes */
-static void benchcore(const char* host,const int port, const char *request);
-static int bench(void);
-static void build_request(const char *url);
+static void benchcore(const char* host,const int port, const char *request); //子进程测试的具体实现
+static int bench(void); //子进程测试，父进程接受数据，并输出
+static void build_request(const char *url); //构建http request
 
-static void alarm_handler(int signal)
+static void alarm_handler(int signal)  //收到SIGALRM 设定timerexpired为1
 {
     timerexpired=1;
 }
@@ -117,6 +116,7 @@ int main(int argc, char *argv[])
         return 2;
     }
     //功能: 处理命令行参数
+    //前两个参数直接由main()函数传入
     //t,p,c 带参数;未开启 silent mode
     while((opt=getopt_long(argc,argv,"912Vfrt:p:c:?h",long_options,&options_index))!=EOF )
     {
@@ -376,7 +376,7 @@ static int bench(void)
             return 3;
         }
         setvbuf(f,NULL,_IONBF,0); //_IONBF模式,不使用buffer
-        speed=0;
+        speed=0; //初始化相关统计数据
         failed=0;
         bytes=0;
         
@@ -388,13 +388,13 @@ static int bench(void)
                 fprintf(stderr,"Some of our childrens died.\n");
                 break;
             }
-            speed+=i;
-            failed+=j;
-            bytes+=k;
+            speed+=i; //增加i次成功数据
+            failed+=j; //增加j次失败数据
+            bytes+=k; //增加k bytes 数据
             /* fprintf(stderr,"*Knock* %d %d read=%d\n",speed,failed,pid); */
-            if(--clients==0) break;
+            if(--clients==0) break; //clients数目的子进程数据读取完毕
         }
-        fclose(f);
+        fclose(f);//关闭对应文件指针
         //计算数据并输出
         printf("\nSpeed=%d pages/min, %d bytes/sec.\nRequests: %d susceed, %d failed.\n",
                (int)((speed+failed)/(benchtime/60.0f)),
@@ -444,7 +444,7 @@ nexttry:while(1)
         /* read all available data from socket */
         while(1)
         {
-            if(timerexpired) break; 
+            if(timerexpired) break;  //volatile 检查是否超时
             i=read(s,buf,1500); //i为成功读取到的bytes数
             /* fprintf(stderr,"%d\n",i); */
             if(i<0) //发生错误
@@ -456,7 +456,7 @@ nexttry:while(1)
             else if(i==0) //无可读数据
                 break; 
             else  
-                bytes+=i;
+                bytes+=i; //子进程的变量改变不会影响父进程
         }
     }
     if(close(s)) {failed++;continue;} //close()释放descriptor
