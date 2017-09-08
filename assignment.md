@@ -472,7 +472,7 @@ main()
     ...
 ```
 
-
+### 
 
 ### gethostbyname()
 
@@ -633,6 +633,14 @@ GET /path/to/file/index.html HTTP/1.0
 ```shell
 GET http://www.somehost.com/path/file.html HTTP/1.0
 ```
+
+### CGI
+
+> In computing, Common Gateway Interface (CGI) offers a standard protocol for web servers to execute programs that execute like Console applications (also called Command-line interface programs) running on a server that generates web pages dynamically. [^1]
+
+\[1\]: https://en.wikipedia.org/wiki/Common_Gateway_Interface
+
+`CGI`:**C**ommon **G**ateway **I**nterface
 
 ## fork()
 
